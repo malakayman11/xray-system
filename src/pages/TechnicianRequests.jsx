@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { mockRequests } from '../data/mockData';
+import { Card, CardContent } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Badge } from '../components/ui/badge';
+import { MotionDiv } from '../components/animations/motionPresets';
 import '../styles/TechnicianRequests.css';
 
 const TechnicianRequests = ({ onSelectRequest }) => {
@@ -29,131 +34,222 @@ const TechnicianRequests = ({ onSelectRequest }) => {
   const urgentCount = requests.filter(r => r.priority === 'urgent').length;
 
   return (
-    <div className="technician-dashboard">
-      <div className="dashboard-header">
-        <h1>
-          X-ray Requests 
-          <span className="badge">{requests.length} total</span>
-        </h1>
-        <div className="header-actions">
-          <input 
-            type="text" 
-            placeholder="Search by patient name..." 
-            className="search-box"
+    <div className="technician-dashboard mx-auto max-w-6xl px-1 py-3 sm:px-2 md:px-0 md:py-4">
+      <div className="dashboard-header mb-5 flex flex-col gap-4 border-b border-slate-800 pb-4 md:mb-6 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-slate-50 md:text-3xl">
+            X-ray Requests
+            <Badge className="badge text-[11px] uppercase tracking-[0.16em]">
+              {requests.length} total
+            </Badge>
+          </h1>
+          <p className="mt-1 text-xs text-slate-500">
+            Monitor incoming X-ray orders, prioritize urgent cases, and launch
+            image uploads.
+          </p>
+        </div>
+        <div className="header-actions flex items-center gap-2">
+          <Input
+            type="text"
+            placeholder="Search by patient name..."
+            className="search-box w-64 md:w-72"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="filters-row">
-        <button 
-          className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-          onClick={() => setFilter('all')}
-        >
-          All Requests
-        </button>
-        <button 
-          className={`filter-btn ${filter === 'pending' ? 'active' : ''}`}
-          onClick={() => setFilter('pending')}
-        >
-          Pending Upload
-        </button>
-        <button 
-          className={`filter-btn ${filter === 'completed' ? 'active' : ''}`}
-          onClick={() => setFilter('completed')}
-        >
-          Completed
-        </button>
-        <button 
-          className={`filter-btn urgent-filter ${filter === 'urgent' ? 'active' : ''}`}
-          onClick={() => setFilter('urgent')}
-        >
-          Urgent
-        </button>
+      <div className="filters-row mb-4 flex flex-wrap gap-2">
+        <div className="inline-flex rounded-full bg-slate-900/70 p-1 shadow-inner shadow-slate-900/60">
+          <Button
+            variant={filter === 'all' ? 'primary' : 'ghost'}
+            size="pill"
+            className="filter-btn px-3 text-xs md:px-4"
+            onClick={() => setFilter('all')}
+          >
+            All Requests
+          </Button>
+          <Button
+            variant={filter === 'pending' ? 'primary' : 'ghost'}
+            size="pill"
+            className="filter-btn px-3 text-xs md:px-4"
+            onClick={() => setFilter('pending')}
+          >
+            Pending Upload
+          </Button>
+          <Button
+            variant={filter === 'completed' ? 'primary' : 'ghost'}
+            size="pill"
+            className="filter-btn px-3 text-xs md:px-4"
+            onClick={() => setFilter('completed')}
+          >
+            Completed
+          </Button>
+          <Button
+            variant={filter === 'urgent' ? 'destructive' : 'ghost'}
+            size="pill"
+            className="filter-btn urgent-filter px-3 text-xs md:px-4"
+            onClick={() => setFilter('urgent')}
+          >
+            Urgent
+          </Button>
+        </div>
       </div>
 
-      <div className="requests-table-container">
-        <table className="requests-table">
+      <MotionDiv
+        className="requests-table-container mb-6 overflow-x-auto rounded-2xl border border-slate-800/80 bg-slate-950/60 shadow-soft-card backdrop-blur-xl"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+      >
+        <table className="requests-table min-w-[800px] w-full border-collapse text-sm">
           <thead>
-            <tr>
-              <th>Request ID</th>
-              <th>Patient</th>
-              <th>X-ray Type</th>
-              <th>Doctor</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th>Actions</th>
+            <tr className="bg-slate-900/80">
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                Request ID
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                Patient
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                X-ray Type
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                Doctor
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                Date
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                Status
+              </th>
+              <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
             {filteredRequests.length > 0 ? (
-              filteredRequests.map(request => (
-                <tr 
-                  key={request.id} 
-                  className={request.priority === 'urgent' ? 'urgent-row' : ''}
+              filteredRequests.map((request) => (
+                <tr
+                  key={request.id}
+                  className={`transition-colors ${
+                    request.priority === 'urgent'
+                      ? 'bg-amber-500/5 hover:bg-amber-500/10'
+                      : 'hover:bg-slate-900/60'
+                  }`}
                 >
-                  <td>
-                    <span className="request-id">{request.id}</span>
-                  </td>
-                  <td>
-                    <div className="patient-info">
-                      <strong>{request.patientName}</strong>
-                      <small>{request.patientId}</small>
-                    </div>
-                  </td>
-                  <td>{request.type}</td>
-                  <td>{request.doctor}</td>
-                  <td>{request.date}</td>
-                  <td>
-                    <span className={`status-badge ${request.status}`}>
-                      {request.status === 'pending' ? 'Pending' : 'Completed'}
+                  <td className="px-4 py-3 align-top">
+                    <span className="request-id inline-flex rounded-full bg-slate-800 px-3 py-1 text-[11px] font-semibold tracking-wide text-slate-100 shadow-soft-card">
+                      {request.id}
                     </span>
                   </td>
-                  <td>
+                  <td className="px-4 py-3 align-top">
+                    <div className="patient-info flex flex-col">
+                      <strong className="text-sm font-semibold text-slate-50">
+                        {request.patientName}
+                      </strong>
+                      <small className="text-xs text-slate-400">
+                        {request.patientId}
+                      </small>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 align-top text-slate-100">
+                    {request.type}
+                  </td>
+                  <td className="px-4 py-3 align-top text-slate-100">
+                    {request.doctor}
+                  </td>
+                  <td className="px-4 py-3 align-top text-slate-300">
+                    {request.date}
+                  </td>
+                  <td className="px-4 py-3 align-top">
+                    <Badge
+                      variant={
+                        request.status === 'pending' ? 'warning' : 'success'
+                      }
+                      className="status-badge text-[11px]"
+                    >
+                      {request.status === 'pending' ? 'Pending' : 'Completed'}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3 align-top text-right">
                     {request.status === 'pending' ? (
-                      <button 
+                      <Button
+                        size="sm"
                         className="action-btn upload-btn"
                         onClick={() => onSelectRequest(request)}
                       >
                         Upload Images
-                      </button>
+                      </Button>
                     ) : (
-                      <button className="action-btn view-btn" disabled>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="action-btn view-btn opacity-60"
+                        disabled
+                      >
                         Completed
-                      </button>
+                      </Button>
                     )}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="no-results">
+                <td
+                  colSpan="7"
+                  className="no-results px-4 py-10 text-center text-sm text-slate-400"
+                >
                   No requests found
                 </td>
               </tr>
             )}
           </tbody>
         </table>
-      </div>
+      </MotionDiv>
 
-      <div className="stats-cards">
-        <div className="stat-card">
-          <span className="stat-value">{pendingCount}</span>
-          <span className="stat-label">Pending Upload</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-value">{completedCount}</span>
-          <span className="stat-label">Completed</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-value">{urgentCount}</span>
-          <span className="stat-label">Urgent</span>
-        </div>
-        <div className="stat-card">
-          <span className="stat-value">{requests.length}</span>
-          <span className="stat-label">Total Requests</span>
-        </div>
+      <div className="stats-cards grid gap-4 md:grid-cols-4">
+        <Card className="stat-card border-slate-800/80 bg-slate-950/70">
+          <CardContent className="flex flex-col items-start gap-1 px-5 py-4">
+            <span className="stat-label text-xs uppercase tracking-[0.18em] text-slate-400">
+              Pending Upload
+            </span>
+            <span className="stat-value text-2xl font-semibold text-amber-300">
+              {pendingCount}
+            </span>
+          </CardContent>
+        </Card>
+        <Card className="stat-card border-slate-800/80 bg-slate-950/70">
+          <CardContent className="flex flex-col items-start gap-1 px-5 py-4">
+            <span className="stat-label text-xs uppercase tracking-[0.18em] text-slate-400">
+              Completed
+            </span>
+            <span className="stat-value text-2xl font-semibold text-emerald-300">
+              {completedCount}
+            </span>
+          </CardContent>
+        </Card>
+        <Card className="stat-card border-slate-800/80 bg-slate-950/70">
+          <CardContent className="flex flex-col items-start gap-1 px-5 py-4">
+            <span className="stat-label text-xs uppercase tracking-[0.18em] text-slate-400">
+              Urgent
+            </span>
+            <span className="stat-value text-2xl font-semibold text-rose-300">
+              {urgentCount}
+            </span>
+          </CardContent>
+        </Card>
+        <Card className="stat-card border-slate-800/80 bg-slate-950/70">
+          <CardContent className="flex flex-col items-start gap-1 px-5 py-4">
+            <span className="stat-label text-xs uppercase tracking-[0.18em] text-slate-400">
+              Total Requests
+            </span>
+            <span className="stat-value text-2xl font-semibold text-sky-300">
+              {requests.length}
+            </span>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
